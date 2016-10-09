@@ -23,6 +23,7 @@ import org.nd4j.linalg.factory.Nd4j;
 
 import java.io.File;
 import java.nio.file.Paths;
+import java.util.Collection;
 import java.util.Properties;
 
 /**
@@ -32,6 +33,7 @@ import java.util.Properties;
 public class Wiki {
 
     public static void main(String[] args) throws Exception {
+
 
         if (args.length <= 1) {
             System.out.println("Param WikiExtract location missing");
@@ -48,7 +50,6 @@ public class Wiki {
         // Split on white spaces in the line to get words
         TokenizerFactory t = new DefaultTokenizerFactory();
        // t.setTokenPreProcessor(new CommonPreprocessor());
-
         t.setTokenPreProcessor(new StemmingPreprocessor()); //Porter
 
         SentenceIterator iter = new FileSentenceIterator(new File(wikiText));
@@ -80,6 +81,10 @@ public class Wiki {
         System.out.println("Fitting Word2Vec took " + (finish - start) + " ms");
 
         Nd4j.ENFORCE_NUMERICAL_STABILITY = true;
+
+        System.out.println("Closest Words:");
+        Collection<String> lst = vec.wordsNearest("Anarchism", 10);
+        System.out.println(lst);
 
         System.out.println("Saving model");
         SerializationUtils.saveObject(vec, new File("/home/datasets/wikipedia/w2v_model.ser"));
