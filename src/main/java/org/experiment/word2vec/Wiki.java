@@ -34,6 +34,7 @@ public class Wiki {
     public static void main(String[] args) throws Exception {
 
         if (args.length <= 1) {
+            System.out.println("Param WikiExtract location missing");
             return;
         }
 
