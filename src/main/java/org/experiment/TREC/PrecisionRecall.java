@@ -1,4 +1,4 @@
-package org.experiment;
+package org.experiment.TREC;
 
 /**
  * Created by sonic on 06/09/16.

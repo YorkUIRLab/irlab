@@ -1,4 +1,4 @@
-package org.experiment;
+package org.experiment.TREC;
 
 import java.io.*;
 

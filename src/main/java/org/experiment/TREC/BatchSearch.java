@@ -1,4 +1,4 @@
-package org.experiment;
+package org.experiment.TREC;
 
 
 import org.apache.lucene.analysis.Analyzer;
