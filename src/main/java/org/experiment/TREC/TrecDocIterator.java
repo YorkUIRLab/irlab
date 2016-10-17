@@ -1,15 +1,12 @@
 package org.experiment.TREC;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.zip.GZIPInputStream;
 
 import org.apache.lucene.benchmark.byTask.feeds.DemoHTMLParser;
 import org.apache.lucene.benchmark.byTask.feeds.DocData;
@@ -31,8 +28,14 @@ public class TrecDocIterator implements Iterator<Document> {
     protected TrecContentSource trecContentSource;
 
 	
-	public TrecDocIterator(File file) throws FileNotFoundException {
-		rdr = new BufferedReader(new FileReader(file));
+	public TrecDocIterator(File file) throws IOException {
+
+        InputStream fileStream = new FileInputStream(file.getAbsolutePath());
+        InputStream gzipStream = new GZIPInputStream(fileStream);
+        Reader decoder = new InputStreamReader(gzipStream, "UTF-8");
+        rdr = new BufferedReader(decoder);
+		//rdr = new BufferedReader(new FileReader(file));
+
 		System.out.println("Reading " + file.toString());
         trecContentSource = new TrecContentSource();
 	}

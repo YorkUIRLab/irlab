@@ -25,13 +25,11 @@ public class PrecisionRecall {
 
     public static void main(String[] args) throws Throwable {
         String index = "index";
-        String simstring = "bm25";
+        String simstring = "lm";
         String field = "contents";
         String docNameField = "docno";
         File topicsFile = new File("/home/sonic/Dev/WT2G/topics/topics.wt2g");
         File qrelsFile = new File("/home/sonic/Dev/WT2G/Golden Standard/qrels.wt2g");
-     //   Directory dir = FSDirectory.open(Paths.get("home/sonic/Dev/WT2G/out.txt"));
-
 
         Similarity simfn = null;
         if ("default".equals(simstring)) {
@@ -47,7 +45,7 @@ public class PrecisionRecall {
         IndexSearcher searcher = new IndexSearcher(reader);
         searcher.setSimilarity(simfn);
 
-        PrintWriter logger = new PrintWriter("test-data/precision-recall.out", "UTF-8");
+        PrintWriter logger  = new PrintWriter("test-data/precision-recall.out",  "UTF-8");
         PrintWriter logger2 = new PrintWriter("test-data/precision-recall2.out", "UTF-8");
 
         TrecTopicsReader qReader = new TrecTopicsReader();
@@ -58,11 +56,12 @@ public class PrecisionRecall {
 
         judge.validateData(qqs, logger);
 
-
         QualityQueryParser qqParser = new SimpleQQParser("title", "contents");
 
         QualityBenchmark qrun = new QualityBenchmark(qqs, qqParser, searcher, docNameField);
-        SubmissionReport submitLog = new SubmissionReport(logger2, "myRun");
+        SubmissionReport submitLog = new SubmissionReport(logger2, "lm");
+
+        //TODO
         QualityStats stats[] = qrun.execute(judge, submitLog, logger);
 
         QualityStats qualityStats = QualityStats.average(stats);

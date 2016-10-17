@@ -27,9 +27,9 @@ public class IndexTREC {
 	
 	public static void main(String[] args) {
 
-        String message = "nohup mvn compile && nohup mvn -e exec:java " +
-                "-Dexec.mainClass=\"org.experiment.word2vec.Wiki\"  " +
-                "-Dexec.args=\"~/datasets/TREC/WT2G/dataset index\" &> trecIndex.log";
+        String message = "nohup mvn compile && nohup mvn -DargLine=\"-Xmx1524m\" -e exec:java " +
+                "-Dexec.mainClass=\"org.experiment.TREC.IndexTREC\"  " +
+                "-Dexec.args=\"/home/datasets/TREC/WT2G/dataset index\" &> trecIndex.log";
 
         String indexPath, docsPath;
         if (args.length == 2 ) {
@@ -122,6 +122,7 @@ public class IndexTREC {
 	 * @throws IOException If there is a low-level I/O error
 	 */
 	static void indexDocs(IndexWriter writer, File file) throws IOException {
+        int counter = 0;
 		// do not try to index files that cannot be read
 		if (file.canRead()) {
 			if (file.isDirectory()) {
@@ -137,11 +138,19 @@ public class IndexTREC {
 				Document doc;
 				while (docs.hasNext()) {
 					doc = docs.next();
-					if (doc != null && doc.getField("contents") != null)
-						writer.addDocument(doc);
+					if (doc != null && doc.getField("contents") != null) {
+                        writer.addDocument(doc);
+                        counter++;
+
+                    }
+
 				}
 			}
+
 		}
+
+        System.out.println("Number of document: " + counter);
+
 	}
 }
 
