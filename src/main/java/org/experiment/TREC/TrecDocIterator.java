@@ -5,23 +5,36 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Date;
 import java.util.Iterator;
+import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.lucene.benchmark.byTask.feeds.DemoHTMLParser;
+import org.apache.lucene.benchmark.byTask.feeds.DocData;
+import org.apache.lucene.benchmark.byTask.feeds.TrecContentSource;
+import org.apache.lucene.benchmark.byTask.feeds.TrecDocParser;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
+import org.experiment.Parser;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 public class TrecDocIterator implements Iterator<Document> {
 
 	protected BufferedReader rdr;
 	protected boolean at_eof = false;
+	protected Parser parser;
+    protected TrecContentSource trecContentSource;
+
 	
 	public TrecDocIterator(File file) throws FileNotFoundException {
 		rdr = new BufferedReader(new FileReader(file));
 		System.out.println("Reading " + file.toString());
+        trecContentSource = new TrecContentSource();
 	}
 	
 	@Override
@@ -66,14 +79,16 @@ public class TrecDocIterator implements Iterator<Document> {
 			if (sb.length() > 0) {
 				String result = sb.substring(sb.indexOf("</DOCHDR>") + 9, sb.indexOf("</DOC>"));
 				//System.out.println(result);
-				doc.add(new TextField("contents", result, Field.Store.NO));
+				parser = new Parser (result.toLowerCase());
+                // Add more pre-processing...
+				doc.add(new TextField("contents", parser.body, Field.Store.NO));
 			}
 
-
-			
-		} catch (IOException e) {
+		} catch (IOException | SAXException e) {
+            System.out.println("...missed...");
 			doc = null;
 		}
+
 		return doc;
 	}
 

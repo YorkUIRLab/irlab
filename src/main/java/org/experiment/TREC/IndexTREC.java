@@ -3,10 +3,15 @@ package org.experiment.TREC;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Properties;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.benchmark.byTask.feeds.*;
+import org.apache.lucene.benchmark.byTask.utils.Config;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
@@ -19,18 +24,23 @@ public class IndexTREC {
 
 	private IndexTREC() {}
 
-	public static void indexTrec () {
-
-	}
 	
 	public static void main(String[] args) {
-		String usage = "java org.apache.lucene.demo.IndexFiles"
-				+ " [-index INDEX_PATH] [-docs DOCS_PATH] [-update]\n\n"
-				+ "This indexes the documents in DOCS_PATH, creating a Lucene index"
-				+ "in INDEX_PATH that can be searched with SearchFiles";
-		String indexPath = "index";
-		//String docsPath = "/home/sonic/Dev/WT2G/dataset/WT01/B01";
-		String docsPath = "/home/sonic/Dev/WT2G/dataset";
+
+        String message = "nohup mvn compile && nohup mvn -e exec:java " +
+                "-Dexec.mainClass=\"org.experiment.word2vec.Wiki\"  " +
+                "-Dexec.args=\"~/datasets/TREC/WT2G/dataset index\" &> trecIndex.log";
+
+        String indexPath, docsPath;
+        if (args.length == 2 ) {
+            indexPath = args[0];
+            docsPath = args[1];
+        } else {
+            indexPath = "index";
+            docsPath = "/media/sonic/Windows/TREC/WT2G/dataset";// /home/datasets/TREC/WT2G/dataset
+        }
+
+
 		boolean create = true;
 		for(int i=0;i<args.length;i++) {
 			if ("-index".equals(args[i])) {
@@ -42,11 +52,6 @@ public class IndexTREC {
 			} else if ("-update".equals(args[i])) {
 				create = false;
 			}
-		}
-
-		if (docsPath == null) {
-			System.err.println("Usage: " + usage);
-			System.exit(1);
 		}
 
 		final File docDir = new File(docsPath);
@@ -61,7 +66,7 @@ public class IndexTREC {
 
 			Directory dir = FSDirectory.open(Paths.get(indexPath));
 			Analyzer analyzer = new StandardAnalyzer();
-			// TODO: add analyzers...
+			// add analyzers...
 			IndexWriterConfig iwc = new IndexWriterConfig(analyzer);
 
 			if (create) {
@@ -77,15 +82,10 @@ public class IndexTREC {
 			// are indexing many documents, increase the RAM
 			// buffer.  But if you do this, increase the max heap
 			// size to the JVM (eg add -Xmx512m or -Xmx1g):
-			//
-			iwc.setRAMBufferSizeMB(256.0);
+			iwc.setRAMBufferSizeMB(1024.0);
 
 			IndexWriter writer = new IndexWriter(dir, iwc);
 			indexDocs(writer, docDir);
-
-			//
-
-			//
 
 			// NOTE: if you want to maximize search performance,
 			// you can optionally call forceMerge here.  This can be
@@ -121,8 +121,7 @@ public class IndexTREC {
 	 * @param file The file to index, or the directory to recurse into to find files to index
 	 * @throws IOException If there is a low-level I/O error
 	 */
-	static void indexDocs(IndexWriter writer, File file)
-			throws IOException {
+	static void indexDocs(IndexWriter writer, File file) throws IOException {
 		// do not try to index files that cannot be read
 		if (file.canRead()) {
 			if (file.isDirectory()) {
@@ -134,7 +133,6 @@ public class IndexTREC {
 					}
 				}
 			} else {
-				//// TODO: 06/09/16 Benchmark Trec 
 				TrecDocIterator docs = new TrecDocIterator(file);
 				Document doc;
 				while (docs.hasNext()) {
