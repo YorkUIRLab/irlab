@@ -25,7 +25,7 @@ public class PrecisionRecall {
 
     public static void main(String[] args) throws Throwable {
         String index = "index";
-        String simstring = "lm";
+        String simstring = "bm25";
         String field = "contents";
         String docNameField = "docno";
         File topicsFile = new File("/home/sonic/Dev/WT2G/topics/topics.wt2g");
