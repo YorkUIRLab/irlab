@@ -64,7 +64,7 @@ public final class Parser {
                 } else if ("head".equals(localName)) {
                     inHEAD++;
                 } else if ("frameset".equals(localName)) {
-                    throw new SAXException("This parser does not support HTML framesets.");
+                    //throw new SAXException("This parser does not support HTML framesets.");
                 }
             }
 

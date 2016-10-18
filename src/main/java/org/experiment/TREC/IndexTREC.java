@@ -29,7 +29,7 @@ public class IndexTREC {
 
         String message = "nohup mvn compile && nohup mvn -DargLine=\"-Xmx1524m\" -e exec:java " +
                 "-Dexec.mainClass=\"org.experiment.TREC.IndexTREC\"  " +
-                "-Dexec.args=\"/home/datasets/TREC/WT2G/dataset index\" &> trecIndex.log";
+                "-Dexec.args=\"index /home/datasets/TREC/WT2G/dataset\" &> trecIndex.log";
 
         String indexPath, docsPath;
         if (args.length == 2 ) {
@@ -141,16 +141,11 @@ public class IndexTREC {
 					if (doc != null && doc.getField("contents") != null) {
                         writer.addDocument(doc);
                         counter++;
-
                     }
-
 				}
 			}
-
 		}
-
         System.out.println("Number of document: " + counter);
-
 	}
 }
 

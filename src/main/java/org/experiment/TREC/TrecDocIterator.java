@@ -82,13 +82,13 @@ public class TrecDocIterator implements Iterator<Document> {
 			if (sb.length() > 0) {
 				String result = sb.substring(sb.indexOf("</DOCHDR>") + 9, sb.indexOf("</DOC>"));
 				//System.out.println(result);
-				parser = new Parser (result.toLowerCase());
+				parser = new Parser (result.toLowerCase().trim());
                 // Add more pre-processing...
 				doc.add(new TextField("contents", parser.body, Field.Store.NO));
 			}
 
 		} catch (IOException | SAXException e) {
-            System.out.println("...missed...");
+            System.out.println("...missed..." + e.getMessage());
 			doc = null;
 		}
 
