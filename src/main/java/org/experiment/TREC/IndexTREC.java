@@ -3,15 +3,10 @@ package org.experiment.TREC;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Properties;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.benchmark.byTask.feeds.*;
-import org.apache.lucene.benchmark.byTask.utils.Config;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
@@ -26,6 +21,7 @@ public class IndexTREC {
 
 	
 	public static void main(String[] args) {
+
 
         String message = "nohup mvn compile && nohup mvn -DargLine=\"-Xmx1524m\" -e exec:java " +
                 "-Dexec.mainClass=\"org.experiment.TREC.IndexTREC\"  " +
@@ -85,7 +81,7 @@ public class IndexTREC {
 			iwc.setRAMBufferSizeMB(1024.0);
 
 			IndexWriter writer = new IndexWriter(dir, iwc);
-			indexDocs(writer, docDir);
+			int numFiles = indexDocs(writer, docDir);
 
 			// NOTE: if you want to maximize search performance,
 			// you can optionally call forceMerge here.  This can be
@@ -96,6 +92,7 @@ public class IndexTREC {
 			// writer.forceMerge(1);
 
             System.out.println("numDocs: " + writer.numDocs() + " maxDoc: " + writer.maxDoc());
+            System.out.println("Total # files: " + getFilesCount( new File("/media/sonic/Windows/TREC/WT2G/dataset"))  + " Total # file read: " + numFiles);
 			writer.close();
 
 			Date end = new Date();
@@ -122,17 +119,18 @@ public class IndexTREC {
 	 * @param file The file to index, or the directory to recurse into to find files to index
 	 * @throws IOException If there is a low-level I/O error
 	 */
-	static void indexDocs(IndexWriter writer, File file) throws IOException {
+	private static int indexDocs(IndexWriter writer, File file) throws IOException {
         int counter = 0;
+        int fileCount = 0;
 		// do not try to index files that cannot be read
 		if (file.canRead()) {
 			if (file.isDirectory()) {
 				String[] files = file.list();
 				// an IO error could occur
 				if (files != null) {
-					for (int i = 0; i < files.length; i++) {
-						indexDocs(writer, new File(file, files[i]));
-					}
+                    for (String file1 : files) {
+                        fileCount +=  indexDocs(writer, new File(file, file1));
+                    }
 				}
 			} else {
 				TrecDocIterator docs = new TrecDocIterator(file);
@@ -144,9 +142,23 @@ public class IndexTREC {
                         counter++;
                     }
 				}
+				fileCount++;
 			}
 		}
         System.out.println("Number of document: " + counter);
+        return fileCount;
 	}
+
+    public static int getFilesCount(File file) {
+        File[] files = file.listFiles();
+        int count = 0;
+        for (File f : files)
+            if (f.isDirectory())
+                count += getFilesCount(f);
+            else
+                count++;
+
+        return count;
+    }
 }
 
