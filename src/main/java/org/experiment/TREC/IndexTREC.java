@@ -81,7 +81,7 @@ public class IndexTREC {
 			iwc.setRAMBufferSizeMB(1024.0);
 
 			IndexWriter writer = new IndexWriter(dir, iwc);
-			int numFiles = indexDocs(writer, docDir);
+			indexDocs(writer, docDir);
 
 			// NOTE: if you want to maximize search performance,
 			// you can optionally call forceMerge here.  This can be
@@ -92,8 +92,7 @@ public class IndexTREC {
 			// writer.forceMerge(1);
 
             System.out.println("numDocs: " + writer.numDocs() + " maxDoc: " + writer.maxDoc());
-            System.out.println("Total # files: " + getFilesCount( new File("/media/sonic/Windows/TREC/WT2G/dataset"))  + " Total # file read: " + numFiles);
-			writer.close();
+            writer.close();
 
 			Date end = new Date();
 			System.out.println(end.getTime() - start.getTime() + " total milliseconds");
@@ -119,9 +118,9 @@ public class IndexTREC {
 	 * @param file The file to index, or the directory to recurse into to find files to index
 	 * @throws IOException If there is a low-level I/O error
 	 */
-	private static int indexDocs(IndexWriter writer, File file) throws IOException {
+	private static void indexDocs(IndexWriter writer, File file) throws IOException {
         int counter = 0;
-        int fileCount = 0;
+
 		// do not try to index files that cannot be read
 		if (file.canRead()) {
 			if (file.isDirectory()) {
@@ -129,7 +128,7 @@ public class IndexTREC {
 				// an IO error could occur
 				if (files != null) {
                     for (String file1 : files) {
-                        fileCount +=  indexDocs(writer, new File(file, file1));
+                        indexDocs(writer, new File(file, file1));
                     }
 				}
 			} else {
@@ -142,23 +141,9 @@ public class IndexTREC {
                         counter++;
                     }
 				}
-				fileCount++;
 			}
 		}
         System.out.println("Number of document: " + counter);
-        return fileCount;
 	}
-
-    public static int getFilesCount(File file) {
-        File[] files = file.listFiles();
-        int count = 0;
-        for (File f : files)
-            if (f.isDirectory())
-                count += getFilesCount(f);
-            else
-                count++;
-
-        return count;
-    }
 }
 
