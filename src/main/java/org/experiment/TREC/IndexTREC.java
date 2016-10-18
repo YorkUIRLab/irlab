@@ -95,6 +95,7 @@ public class IndexTREC {
 			//
 			// writer.forceMerge(1);
 
+            System.out.println("numDocs: " + writer.numDocs() + " maxDoc: " + writer.maxDoc());
 			writer.close();
 
 			Date end = new Date();
