@@ -24,12 +24,12 @@ import org.apache.lucene.benchmark.quality.trec.*;
 public class PrecisionRecall {
 
     public static void main(String[] args) throws Throwable {
-        String index = "index";
+        String index = "/home/datasets/TREC/index";
         String simstring = "bm25";
         String field = "contents";
         String docNameField = "docno";
-        File topicsFile = new File("/home/sonic/Dev/WT2G/topics/topics.wt2g");
-        File qrelsFile = new File("/home/sonic/Dev/WT2G/Golden Standard/qrels.wt2g");
+        File topicsFile = new File("/home/datasets/TREC/WT2G/topics/topics.wt2g");
+        File qrelsFile = new File("/home/datasets/TREC/WT2G/Golden Standard/qrels.wt2g");
 
         Similarity simfn = null;
         if ("default".equals(simstring)) {
@@ -59,13 +59,14 @@ public class PrecisionRecall {
         QualityQueryParser qqParser = new SimpleQQParser("title", "contents");
 
         QualityBenchmark qrun = new QualityBenchmark(qqs, qqParser, searcher, docNameField);
-        SubmissionReport submitLog = new SubmissionReport(logger2, "lm");
+        SubmissionReport submitLog = new SubmissionReport(logger2, simstring);
 
         //TODO
         QualityStats stats[] = qrun.execute(judge, submitLog, logger);
 
         QualityStats qualityStats = QualityStats.average(stats);
-        qualityStats.log("SUMMARY", 2,logger2, "  ");
+        qualityStats.log("SUMMARY", 2,logger, "  ");
+	logger.close();
     //    dir.close();
     }
 }
