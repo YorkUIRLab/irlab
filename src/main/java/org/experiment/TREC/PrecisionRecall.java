@@ -20,16 +20,17 @@ import org.apache.lucene.store.*;
 import org.apache.lucene.benchmark.quality.*;
 import org.apache.lucene.benchmark.quality.utils.*;
 import org.apache.lucene.benchmark.quality.trec.*;
+import org.experiment.query.TRECQQParser;
 
 public class PrecisionRecall {
 
     public static void main(String[] args) throws Throwable {
-        String index = "/home/datasets/TREC/index";
+        String index = "index";
         String simstring = "bm25";
         String field = "contents";
         String docNameField = "docno";
-        File topicsFile = new File("/home/datasets/TREC/WT2G/topics/topics.wt2g");
-        File qrelsFile = new File("/home/datasets/TREC/WT2G/Golden Standard/qrels.wt2g");
+        File topicsFile = new File("/media/sonic/Windows/TREC/WT2G/topics/topics.wt2g");
+        File qrelsFile = new File("/media/sonic/Windows/TREC/WT2G/Golden Standard/qrels.wt2g");
 
         Similarity simfn = null;
         if ("default".equals(simstring)) {
@@ -56,7 +57,7 @@ public class PrecisionRecall {
 
         judge.validateData(qqs, logger);
 
-        QualityQueryParser qqParser = new SimpleQQParser("title", "contents");
+        QualityQueryParser qqParser = new TRECQQParser("title", "contents");
 
         QualityBenchmark qrun = new QualityBenchmark(qqs, qqParser, searcher, docNameField);
         SubmissionReport submitLog = new SubmissionReport(logger2, simstring);
@@ -66,7 +67,8 @@ public class PrecisionRecall {
 
         QualityStats qualityStats = QualityStats.average(stats);
         qualityStats.log("SUMMARY", 2,logger, "  ");
-	logger.close();
-    //    dir.close();
+	    logger.close();
+        logger2.close();
+        //    dir.close();
     }
 }

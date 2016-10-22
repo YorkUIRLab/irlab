@@ -6,13 +6,13 @@ import java.nio.file.Paths;
 import java.util.Date;
 
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.IndexWriterConfig.OpenMode;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
+import org.experiment.analyzer.TRECAnalyzer;
 
 
 public class IndexTREC {
@@ -61,7 +61,7 @@ public class IndexTREC {
 			System.out.println("Indexing to directory '" + indexPath + "'...");
 
 			Directory dir = FSDirectory.open(Paths.get(indexPath));
-			Analyzer analyzer = new StandardAnalyzer();
+			Analyzer analyzer = new TRECAnalyzer();
 			// add analyzers...
 			IndexWriterConfig iwc = new IndexWriterConfig(analyzer);
 
