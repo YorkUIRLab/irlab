@@ -18,9 +18,9 @@ public class Word2VecLoader {
     public static void main(String[] args) {
 
         try {
-            Args.parse(TRECWord2Vec.class, args);
+            Args.parse(Word2VecLoader.class, args);
         } catch (IllegalArgumentException e) {
-            Args.usage(TRECWord2Vec.class);
+            Args.usage(Word2VecLoader.class);
             System.exit(1);
         }
 
