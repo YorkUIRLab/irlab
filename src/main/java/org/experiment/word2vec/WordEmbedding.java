@@ -2,8 +2,11 @@ package org.experiment.word2vec;
 
 import com.sampullara.cli.Args;
 import com.sampullara.cli.Argument;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.LineIterator;
 import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer;
 import org.deeplearning4j.models.word2vec.Word2Vec;
+import org.deeplearning4j.text.sentenceiterator.BaseSentenceIterator;
 import org.deeplearning4j.text.sentenceiterator.LineSentenceIterator;
 import org.deeplearning4j.text.sentenceiterator.SentenceIterator;
 import org.deeplearning4j.text.sentenceiterator.SentencePreProcessor;
@@ -13,8 +16,8 @@ import org.deeplearning4j.text.tokenization.tokenizerfactory.TokenizerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-
+import java.io.*;
+import java.util.zip.GZIPInputStream;
 
 
 /**
@@ -41,15 +44,17 @@ public class WordEmbedding {
             System.exit(1);
         }
 
-       // String filePath = "dataset/TREC/word2vec/WT2GLine.gz";
-       // String outputPath = "dataset/TREC/word2vec/WT2G-Word2Vec.gz";
-
         log.info("Load & Vectorize Sentences....");
         // Strip white space before and after for each line
-        //SentenceIterator iter = new BasicLineIterator(filePath);
+        // SentenceIterator iter = new BasicLineIterator(filePath);
         // Split on white spaces in the line to get words
         TokenizerFactory t = new DefaultTokenizerFactory();
         t.setTokenPreProcessor(new CommonPreprocessor());
+
+//        InputStream fileStream = new FileInputStream(filePath);
+//        InputStream gzipStream = new GZIPInputStream(fileStream);
+//        Reader decoder = new InputStreamReader(gzipStream, "UTF-8");
+//        BufferedReader rdr = new BufferedReader(decoder);
 
         SentenceIterator iter = new LineSentenceIterator(new File(filePath));
         iter.setPreProcessor(new SentencePreProcessor() {
@@ -61,7 +66,7 @@ public class WordEmbedding {
 
         log.info("Building model....");
         Word2Vec vec = new Word2Vec.Builder()
-                .minWordFrequency(5)
+                .minWordFrequency(3)
                 .iterations(1)
                 .layerSize(100)
                 .seed(42)
@@ -78,7 +83,7 @@ public class WordEmbedding {
         // Write word vectors
         WordVectorSerializer.writeWordVectors(vec, outputPath);
 
+        WordVectorSerializer.writeFullModel(vec, "dataset/TREC/Word2Vec-full.txt");
     }
-
-
 }
+
