@@ -1,5 +1,7 @@
 package org.experiment.word2vec;
 
+import com.sampullara.cli.Args;
+import com.sampullara.cli.Argument;
 import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer;
 import org.deeplearning4j.models.word2vec.Word2Vec;
 import org.deeplearning4j.text.sentenceiterator.LineSentenceIterator;
@@ -22,10 +24,25 @@ public class WordEmbedding {
 
     private static Logger log = LoggerFactory.getLogger(WordEmbedding.class);
 
+    @Argument(alias = "f", description = "File containing TREC documents line format", required = true)
+    private static String filePath;
+
+    @Argument(alias = "v", description = "Vector File", required = true)
+    private static String outputPath;
+
+
     public static void main(String[] args) throws Exception {
 
-        String filePath = "dataset/word2vec.training.txt";
-        String outputPath = "dataset/out.txt";
+        // arguments
+        try {
+            Args.parse(WordEmbedding.class, args);
+        } catch (IllegalArgumentException e) {
+            Args.usage(WordEmbedding.class);
+            System.exit(1);
+        }
+
+       // String filePath = "dataset/TREC/word2vec/WT2GLine.gz";
+       // String outputPath = "dataset/TREC/word2vec/WT2G-Word2Vec.gz";
 
         log.info("Load & Vectorize Sentences....");
         // Strip white space before and after for each line
