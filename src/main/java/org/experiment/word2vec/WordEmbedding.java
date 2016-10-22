@@ -81,9 +81,9 @@ public class WordEmbedding {
         log.info("Writing word vectors to text file....");
 
         // Write word vectors
-        WordVectorSerializer.writeWordVectors(vec, outputPath);
+        WordVectorSerializer.writeWordVectors(vec, outputPath + "WordVectors.txt");
 
-        WordVectorSerializer.writeFullModel(vec, "dataset/TREC/Word2Vec-full.txt");
+        WordVectorSerializer.writeFullModel(vec, outputPath + "Word2Vec-full.txt");
     }
 }
 
