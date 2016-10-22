@@ -29,9 +29,9 @@ public class TRECWord2Vec {
 
         // arguments
         try {
-            Args.parse(WordEmbedding.class, args);
+            Args.parse(TRECWord2Vec.class, args);
         } catch (IllegalArgumentException e) {
-            Args.usage(WordEmbedding.class);
+            Args.usage(TRECWord2Vec.class);
             System.exit(1);
         }
 
