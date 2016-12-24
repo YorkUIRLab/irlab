@@ -109,10 +109,10 @@ public final class Parser {
         parser.parse(inputSource);
 
         // the javacc-based parser trimmed title (which should be done for HTML in all cases):
-        this.title = title.toString().trim().replaceAll("(\\r|\\n|\\t)", "");
+        this.title = title.toString().trim().replaceAll("(\\r|\\n|\\t)", " ");
 
         // assign body text
-        this.body = body.toString().trim().replaceAll("(\\r|\\n|\\t)", "");
+        this.body = body.toString().trim().replaceAll("(\\r|\\n|\\t)", " ");
     }
 
     private static final Set<String> createElementNameSet(String... names) {

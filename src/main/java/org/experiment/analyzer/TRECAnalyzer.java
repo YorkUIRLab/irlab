@@ -72,7 +72,6 @@ public class TRECAnalyzer extends Analyzer  {
         ArrayList<String> result = new ArrayList<String>();
 
         Reader reader = new StringReader(text);
-        System.out.println(text);
 
         try {
             TokenStream ts = analyzer.tokenStream(null, text);
@@ -82,6 +81,7 @@ public class TRECAnalyzer extends Analyzer  {
                 CharTermAttribute ta = ts.getAttribute(CharTermAttribute.class);
                 result.add(ta.toString());
             }
+            ts.reset();
 
         } catch (IOException e) {
             e.printStackTrace();

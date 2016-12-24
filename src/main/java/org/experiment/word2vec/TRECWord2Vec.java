@@ -27,7 +27,6 @@ public class TRECWord2Vec {
 
     public static void main(String[] args) {
 
-        // arguments
         try {
             Args.parse(TRECWord2Vec.class, args);
         } catch (IllegalArgumentException e) {
@@ -83,7 +82,7 @@ public class TRECWord2Vec {
                     doc = docs.next();
                     if (doc != null && doc.getField("contents") != null) {
                         ArrayList<String> termList = getTermList(doc.getField("contents").tokenStream(analyzer, ts));
-                        writer.append(StringUtils.join(termList).replaceAll(("[^A-Za-z0-9 ]"), ""));
+                        writer.append(StringUtils.join(termList).replaceAll(("[^A-Za-z0-9 ]"), " "));
                         writer.newLine();
                         counter++;
                     }

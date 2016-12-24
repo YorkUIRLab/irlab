@@ -17,7 +17,7 @@ public class WikipediaIndex {
 
     public static void main(String[] args) throws Exception {
 
-        File wikipedia = new File("/media/sonic/Windows/Wikipedia/enwiki-latest-pages-articles.xml.bz2");
+        File wikipedia = new File("/media/sonic/Windows/Wikiped ia/enwiki-latest-pages-articles.xml.bz2");
         String outputDir = "/media/sonic/Windows/Wikipedia/enwiki";
         boolean keepImageOnlyDocs = false;
 //        for (int i = 0; i < args.length; i++) {

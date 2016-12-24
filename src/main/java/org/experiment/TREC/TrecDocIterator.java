@@ -84,7 +84,8 @@ public class TrecDocIterator implements Iterator<Document> {
 				//System.out.println(result);
 				parser = new Parser (result.toLowerCase().trim());
                 // Add more pre-processing...
-				doc.add(new TextField("contents", parser.body, Field.Store.NO));
+				// http://stackoverflow.com/questions/12727868/lucene-how-to-store-file-content
+				doc.add(new TextField("contents", parser.body, Field.Store.YES));
 			}
 
 		} catch (IOException | SAXException e) {

@@ -1,5 +1,6 @@
 package org.experiment.preprocessing;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
@@ -11,6 +12,7 @@ import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.pipeline.Annotation;
 import edu.stanford.nlp.pipeline.StanfordCoreNLP;
 import edu.stanford.nlp.util.CoreMap;
+import org.utils.Utilities;
 
 /**
  * Created by sonic on 14/10/16.
@@ -34,6 +36,11 @@ public class StanfordLemmatizer {
             stanfordLemmatizer = new StanfordLemmatizer();
         }
         return stanfordLemmatizer;
+    }
+
+    public String lemmatizeToString(String documentText)
+    {
+        return Utilities.listToString((lemmatize(documentText)));
     }
 
     public List<String> lemmatize(String documentText)
@@ -62,6 +69,6 @@ public class StanfordLemmatizer {
         String text = "For grammatical reasons, documents are going to use different forms of a word, such as organize, organizes, and organizing. " +
                 "Additionally, there are families of derivationally related words with similar meanings, such as democracy, democratic, and democratization. " +
                 "In many situations, it seems as if it would be useful for a search for one of these words to return documents that contain another word in the set.\n";
-        System.out.println(StanfordLemmatizer.getInstance().lemmatize(text));
+        System.out.println(StanfordLemmatizer.getInstance().lemmatizeToString(text));
     }
 }

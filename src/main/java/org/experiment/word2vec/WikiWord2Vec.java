@@ -1,48 +1,51 @@
 package org.experiment.word2vec;
 
-import com.sampullara.cli.Args;
-import com.sampullara.cli.Argument;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.LineIterator;
 import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer;
 import org.deeplearning4j.models.word2vec.Word2Vec;
-import org.deeplearning4j.text.sentenceiterator.BaseSentenceIterator;
 import org.deeplearning4j.text.sentenceiterator.LineSentenceIterator;
 import org.deeplearning4j.text.sentenceiterator.SentenceIterator;
 import org.deeplearning4j.text.sentenceiterator.SentencePreProcessor;
 import org.deeplearning4j.text.tokenization.tokenizer.preprocessor.CommonPreprocessor;
 import org.deeplearning4j.text.tokenization.tokenizerfactory.DefaultTokenizerFactory;
 import org.deeplearning4j.text.tokenization.tokenizerfactory.TokenizerFactory;
+import org.experiment.wikipedia.processor.TagMeWikiHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
-import java.util.zip.GZIPInputStream;
-
+import java.io.File;
+import java.io.IOException;
 
 /**
- * Created by sonic on 21/09/16.
+ * Created by sonic on 07/12/16.
  */
-public class WordEmbedding {
+public class WikiWord2Vec {
 
-    private static Logger log = LoggerFactory.getLogger(WordEmbedding.class);
+    private static Logger log = LoggerFactory.getLogger(WikiWord2Vec.class);
 
-    @Argument(alias = "f", description = "File containing TREC documents line format", required = true)
-    private static String filePath;
+    public static void main(String[] args) {
 
-    @Argument(alias = "v", description = "Vector File", required = true)
-    private static String outputPath;
+        File dir = new File(TagMeWikiHelper.WIKI_QUERY_EXPANSION_BASE_LOCATION);
+        File[] directoryListing = dir.listFiles();
+        if (directoryListing != null) {
+            for (File child : directoryListing) {
+                try {
+                    processWord2Vec(child);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        } else {
 
-
-    public static void main(String[] args) throws Exception {
-
-        // arguments
-        try {
-            Args.parse(WordEmbedding.class, args);
-        } catch (IllegalArgumentException e) {
-            Args.usage(WordEmbedding.class);
-            System.exit(1);
         }
+
+    }
+
+    /**
+     *
+     * @param filePath
+     * @throws IOException
+     */
+    public static void processWord2Vec (File filePath) throws IOException {
 
         log.info("Load & Vectorize Sentences....");
         // Strip white space before and after for each line
@@ -52,7 +55,7 @@ public class WordEmbedding {
         t.setTokenPreProcessor(new CommonPreprocessor());
 
 
-        SentenceIterator iter = new LineSentenceIterator(new File(filePath));
+        SentenceIterator iter = new LineSentenceIterator(filePath);
         iter.setPreProcessor(new SentencePreProcessor() {
             @Override
             public String preProcess(String sentence) {
@@ -60,7 +63,7 @@ public class WordEmbedding {
             }
         });
 
-        log.info("Building model....");
+        log.info("Building model...." + filePath.getAbsolutePath() );
         Word2Vec vec = new Word2Vec.Builder()
                 .minWordFrequency(3)
                 .iterations(1)
@@ -77,10 +80,9 @@ public class WordEmbedding {
         log.info("Writing word vectors to text file....");
 
         // Write word vectors
-        WordVectorSerializer.writeWordVectors(vec, outputPath + "WordVectors.txt");
+        WordVectorSerializer.writeWordVectors(vec, TagMeWikiHelper.WIKI_QUERY_EXPANSION_BASE_LOCATION + filePath.getName() + "_WordVectors.txt");
 
         // Write Full Model
-        WordVectorSerializer.writeFullModel(vec, outputPath + "Word2Vec-full.txt");
+        WordVectorSerializer.writeFullModel(vec, TagMeWikiHelper.WIKI_QUERY_EXPANSION_BASE_LOCATION + filePath.getName() + "_Word2Vec-full.txt");
     }
 }
-
