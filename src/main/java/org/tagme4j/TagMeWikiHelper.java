@@ -1,12 +1,7 @@
-package org.experiment.wikipedia.processor;
+package org.tagme4j;
 
 import org.apache.lucene.benchmark.quality.QualityQuery;
-import org.apache.lucene.benchmark.quality.utils.DocNameExtractor;
-import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.search.TopDocs;
 import org.experiment.analyzer.WikiPediaAnalyzer;
-import org.experiment.word2vec.WikiWord2Vec;
-import org.jcp.xml.dsig.internal.dom.Utils;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;

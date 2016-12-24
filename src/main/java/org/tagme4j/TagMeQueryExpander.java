@@ -1,4 +1,4 @@
-package org.experiment.tagme4j;
+package org.tagme4j;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.benchmark.quality.QualityQuery;
@@ -6,12 +6,8 @@ import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer;
 import org.deeplearning4j.models.word2vec.Word2Vec;
 import org.experiment.analyzer.TRECAnalyzer;
 import org.experiment.preprocessing.StanfordLemmatizer;
-import org.experiment.wikipedia.processor.TagMeWikiHelper;
-import org.experiment.word2vec.WikiWord2Vec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tagme4j.TagMeClient;
-import org.tagme4j.TagMeException;
 import org.tagme4j.model.Annotation;
 import org.tagme4j.model.Relatedness;
 import org.tagme4j.response.RelResponse;
@@ -24,8 +20,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
-
-import static org.experiment.word2vec.WikiWord2Vec.processWord2Vec;
 
 /**
  * Created by sonic on 27/11/16.
