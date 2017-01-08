@@ -1,0 +1,24 @@
+ssh irlab@130.63.117.224
+
+//for large text processes
+-Xmx10G -Xms10G
+
+//Index Wikipedia
+nohup mvn compile && nohup mvn -e exec:java -Dexec.mainClass="org.experiment.wikipedia.IndexWikipedia"  -Dexec.args="/home/datasets/wikipedia/enwiki-latest-pages-articles.xml.bz2 /home/datasets/wikipedia/index" &> indexLog.txt
+
+//Clean wiki
+nohup sudo python WikiExtractor.py -c -o /home/datasets/wikipedia/wikiExtract/ enwiki-latest-pages-articles.xml.bz2 &> wikiExtractLog.txt
+
+//Word2Vec wiki
+nohup mvn compile && nohup mvn -e exec:java -Dexec.mainClass="org.experiment.word2vec.Wiki"  -Dexec.args="/home/datasets/wikipedia/wikiExtract/" &> word2vecLog.txt
+
+
+// Index TREC
+mvn compile && mvn -DargLine="-Xmx3g" -e exec:java -Dexec.mainClass="org.experiment.TREC.IndexTREC" -Dexec.args="/home/datasets/TREC/index /home/datasets/TREC/WT2G/dataset/"
+
+
+// TREC word2vec
+nohup mvn compile && nohup mvn -DargLine="-Xmx32g" -e exec:java -Dexec.mainClass="org.experiment.word2vec.WordEmbedding" -Dexec.args="/home/datasets/TREC/WT2G.gz /home/datasets/TREC/TRECword2vec.txt" &> TRECword2vecLog.txt
+
+// WIKIPEDIA XML DUMP
+wget https://dumps.wikimedia.org/enwiki/latest/enwiki-latest-pages-articles.xml.bz2
