@@ -74,19 +74,9 @@ public class BagOfEntitiesEx {
 //        tetaList.add(0.9);
         tetaList.add(1.0);
 
-
-
         String description = "ENTLM-";
-
-            topicPath = "/media/sonic/Windows/TREC/WT2G/topics/topics.wt2g";
-            qrelsPath = "/media/sonic/Windows/TREC/qrels/qrels.AP.51-150";
-            File topicsFile = new File(topicPath);
-            File qrelsFile = new File(qrelsPath);
-//        String index = "/media/sonic/Windows/TREC/index/WT2G";
-//        File topicsFile = new File("/media/sonic/Windows/TREC/WT2G/topics/topics.wt2g");
-//        File qrelsFile = new File("/media/sonic/Windows/TREC/WT2G/Golden Standard/qrels.wt2g");
-
-
+        File topicsFile = new File(topicPath);
+        File qrelsFile = new File(qrelsPath);
 
         IndexReader reader = DirectoryReader.open(FSDirectory.open(Paths.get(index)));
         IndexSearcher searcher = new IndexSearcher(reader);
