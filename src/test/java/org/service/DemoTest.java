@@ -21,6 +21,7 @@ public class DemoTest {
 
     @Test
     public void DemoTest () throws Exception {
+        logger.info("hello");
 
     }
 

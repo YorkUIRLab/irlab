@@ -7,8 +7,11 @@ import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.document.Document;
 import org.deeplearning4j.berkeley.StringUtils;
+import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer;
+import org.deeplearning4j.models.word2vec.Word2Vec;
 import org.experiment.TREC.TrecDocIterator;
 import org.experiment.analyzer.TRECAnalyzer;
+import org.utils.Utilities;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -81,8 +84,7 @@ public class TRECWord2Vec {
                 while (docs.hasNext()) {
                     doc = docs.next();
                     if (doc != null && doc.getField("contents") != null) {
-                        ArrayList<String> termList = getTermList(doc.getField("contents").tokenStream(analyzer, ts));
-                        writer.append(StringUtils.join(termList).replaceAll(("[^A-Za-z0-9 ]"), " "));
+                        writer.append( Utilities.getTermList(doc.getField("contents").tokenStream(analyzer, ts)) );
                         writer.newLine();
                         counter++;
                     }
@@ -92,20 +94,16 @@ public class TRECWord2Vec {
         }
     }
 
-    public static ArrayList<String> getTermList(TokenStream ts) throws IOException {
-
-        ArrayList<String> result = new ArrayList<String>();
+    public static Word2Vec loadWord2VecModel (String fullVectorModel) {
         try {
-            ts.reset();
-            while (ts.incrementToken()) {
-                CharTermAttribute ta = ts.getAttribute(CharTermAttribute.class);
-                result.add(ta.toString());
-            }
-            ts.reset();
-        } catch (IOException e) {
+            return WordVectorSerializer.loadFullModel(fullVectorModel);
+        } catch (Exception e) {
+            System.err.println("Could not load fullVector file: " + e.getMessage());
             e.printStackTrace();
+            return null;
         }
-        return result;
     }
+
+
 
 }

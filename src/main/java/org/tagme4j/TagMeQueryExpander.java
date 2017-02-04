@@ -6,6 +6,7 @@ import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer;
 import org.deeplearning4j.models.word2vec.Word2Vec;
 import org.experiment.analyzer.TRECAnalyzer;
 import org.experiment.preprocessing.StanfordLemmatizer;
+import org.experiment.word2vec.TRECWord2Vec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tagme4j.model.Annotation;
@@ -28,7 +29,6 @@ import java.util.List;
  */
 public class TagMeQueryExpander {
 
-    static String tagMeToken = "b1eac658-d8a7-49ac-8596-a212d7bf3c92-843339462";
     public static String  tagMeURL = "https://tagme.d4science.org/tagme/tag?lang=en&gcube-token={TOKEN}&text={TEXT}&include_abstract=true";
 
     //set number of close word
@@ -41,7 +41,7 @@ public class TagMeQueryExpander {
     TagMeClient tagMeClient;
     public TagMeQueryExpander() {
         System.setProperty("javax.net.ssl.trustStore", "jssecacerts");
-        tagMeClient = new TagMeClient(tagMeToken);
+        tagMeClient = new TagMeClient(TagMeWikiHelper.tagMeToken);
         this.trecAnalyzer = new TRECAnalyzer();
     }
 
@@ -49,25 +49,9 @@ public class TagMeQueryExpander {
 
         ArrayList<QualityQuery> qualityQueryList = new ArrayList<>();
 
-        HashMap<QualityQuery, List<Annotation>> entityMap = new HashMap<>();
-
-        for (QualityQuery qq : qqs) {
-            String queryTitle = qq.getValue("title").toLowerCase().trim();
-
-            TagResponse tagResponse = tagMeClient
-                    .tag()
-                    .text(StanfordLemmatizer.getInstance().lemmatizeToString(queryTitle))
-                    .execute();
-
-            for (Annotation a : tagResponse.getAnnotations()) {
-                //log.info(queryTitle + a.toString());
-            }
-            entityMap.put(qq, tagResponse.getAnnotations());
-        }
-
         log.info ("Start Wiki Entities Training");
         // Turn-On Turn-OFF
-        //TagMeWikiHelper.processWikiEntities (entityMap);
+      //  TagMeWikiHelper.processWikiEntities (qqs);
         log.info ("Ended Wiki Entities Training");
 
 
@@ -86,8 +70,8 @@ public class TagMeQueryExpander {
                         word2vecModelFile = qq.getQueryID() + "_Word2Vec-full.txt";
                         //log.info("fileName: " + child.getName());
                         if (word2vecModelFile.equals(child.getName())) {
-                            //log.info("loading Word2Vec model: " + child.getAbsolutePath());
-                            word2Vec = loadWord2VecModel (child.getAbsolutePath());
+                            log.info("loading Word2Vec model: " + child.getAbsolutePath());
+                            word2Vec = TRECWord2Vec.loadWord2VecModel (child.getAbsolutePath());
 
                             for (String query : TRECAnalyzer.getTermList(trecAnalyzer, queryTitle)) {
                                 Collection<String> lst4 = word2Vec.wordsNearest(query, nearestWord);
@@ -131,7 +115,7 @@ public class TagMeQueryExpander {
 //            System.out.printf("%s -> %s (rho=%f, lp=%f, abstract=%s)%n", a.getSpot(), a.getTitle(), a.getRho(), a.getLink_probability(), a.getWiki_abstract());
 //        }
 
-        TagMeClient tagMeClient = new TagMeClient(tagMeToken);
+        TagMeClient tagMeClient = new TagMeClient(TagMeWikiHelper.tagMeToken);
 
         TagResponse tagResponse = tagMeClient
                 .tag()
@@ -151,29 +135,22 @@ public class TagMeQueryExpander {
 //            System.out.printf("%s (lp=%f)%n", m.getSpot(), m.getLp());
 //        }
 //
-        RelResponse relResponse = tagMeClient
-                .rel()
-                .tt("Linked_data Semantic_Web")
-                .tt("University_of_Pisa Massachusetts_Institute_of_Technology")
-                .tt("Hussein_of_Jordan Peace")
-                .tt("James_Cameron Non_Existing_Entity_ZXCASD")
-                .execute();
-
-
-        for (Relatedness r : relResponse.getResult())
-            if (r.entitiesExist())
-                log.info(r.toString());
-            else
-                log.info("Could not compute relatedness for entities error: " + r.toString());
+//        RelResponse relResponse = tagMeClient
+//                .rel()
+//                .tt("Linked_data Semantic_Web")
+//                .tt("University_of_Pisa Massachusetts_Institute_of_Technology")
+//                .tt("Hussein_of_Jordan Peace")
+//                .tt("James_Cameron Non_Existing_Entity_ZXCASD")
+//                .execute();
+//
+//
+//        for (Relatedness r : relResponse.getResult())
+//            if (r.entitiesExist())
+//                log.info(r.toString());
+//            else
+//                log.info("Could not compute relatedness for entities error: " + r.toString());
 
     }
 
-    public static Word2Vec loadWord2VecModel (String fullVectorModel) {
-        try {
-            return WordVectorSerializer.loadFullModel(fullVectorModel);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
+
 }

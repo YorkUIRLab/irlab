@@ -27,11 +27,12 @@ public class TagMeClient {
      * @param apikey the D4Science Service Authorization Token
      */
     public TagMeClient(String apikey) {
+        System.setProperty("javax.net.ssl.trustStore", "jssecacerts");
         this.apikey = apikey;
         this.client = new OkHttpClient.Builder()
-                .connectTimeout(120, TimeUnit.SECONDS)
-                .writeTimeout(120, TimeUnit.SECONDS)
-                .readTimeout(120, TimeUnit.SECONDS)
+                .connectTimeout(5, TimeUnit.MINUTES)
+                .writeTimeout(5, TimeUnit.MINUTES)
+                .readTimeout(5, TimeUnit.MINUTES)
                 .build();
         this.gson = new Gson();
     }

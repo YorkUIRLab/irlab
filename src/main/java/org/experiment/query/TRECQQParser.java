@@ -22,7 +22,7 @@ public class TRECQQParser implements QualityQueryParser {
     ThreadLocal<QueryParser> queryParser = new ThreadLocal<QueryParser>();
 
     /**
-     * Constructor of a simple qq parser.
+     * Constructor of a simple qq HTMLParser.
      *
      * @param qqNames    name-value pairs of quality query to use for creating the query
      * @param indexField corresponding index field
@@ -33,7 +33,7 @@ public class TRECQQParser implements QualityQueryParser {
     }
 
     /**
-     * Constructor of a simple qq parser.
+     * Constructor of a simple qq HTMLParser.
      *
      * @param qqName     name-value pair of quality query to use for creating the query
      * @param indexField corresponding index field

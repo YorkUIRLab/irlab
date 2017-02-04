@@ -1,4 +1,4 @@
-package org.experiment;
+package org.utils;
 
 import org.cyberneko.html.parsers.SAXParser;
 import org.xml.sax.Attributes;
@@ -14,12 +14,12 @@ import java.util.*;
 /**
  * Created by sonic on 16/10/16.
  */
-public final class Parser {
+public final class HTMLParser {
 
     public final Properties metaTags = new Properties();
     public final String title, body;
 
-    public Parser(String source) throws IOException, SAXException {
+    public HTMLParser(String source) throws IOException, SAXException {
         final SAXParser parser = new SAXParser();
         parser.setFeature("http://xml.org/sax/features/namespaces", true);
         parser.setFeature("http://cyberneko.org/html/features/balance-tags", true);
@@ -52,7 +52,7 @@ public final class Parser {
                     if (SUPPRESS_ELEMENTS.contains(localName)) {
                         suppressed++;
                     } else if ("img".equals(localName)) {
-                        // the original javacc-based parser preserved <IMG alt="..."/>
+                        // the original javacc-based HTMLParser preserved <IMG alt="..."/>
                         // attribute as body text in [] parenthesis:
                         final String alt = atts.getValue("alt");
                         if (alt != null) {
@@ -64,7 +64,7 @@ public final class Parser {
                 } else if ("head".equals(localName)) {
                     inHEAD++;
                 } else if ("frameset".equals(localName)) {
-                    //throw new SAXException("This parser does not support HTML framesets.");
+                    //throw new SAXException("This HTMLParser does not support HTML framesets.");
                 }
             }
 
@@ -108,7 +108,7 @@ public final class Parser {
         InputSource inputSource = new InputSource(new StringReader(source));
         parser.parse(inputSource);
 
-        // the javacc-based parser trimmed title (which should be done for HTML in all cases):
+        // the javacc-based HTMLParser trimmed title (which should be done for HTML in all cases):
         this.title = title.toString().trim().replaceAll("(\\r|\\n|\\t)", " ");
 
         // assign body text

@@ -4,7 +4,9 @@ import com.sampullara.cli.Args;
 import com.sampullara.cli.Argument;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.LineIterator;
+import org.deeplearning4j.models.embeddings.learning.impl.elements.CBOW;
 import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer;
+import org.deeplearning4j.models.word2vec.VocabWord;
 import org.deeplearning4j.models.word2vec.Word2Vec;
 import org.deeplearning4j.text.sentenceiterator.BaseSentenceIterator;
 import org.deeplearning4j.text.sentenceiterator.LineSentenceIterator;
@@ -62,6 +64,7 @@ public class WordEmbedding {
 
         log.info("Building model....");
         Word2Vec vec = new Word2Vec.Builder()
+               // .elementsLearningAlgorithm(new CBOW<VocabWord>())
                 .minWordFrequency(3)
                 .iterations(1)
                 .layerSize(100)
