@@ -32,9 +32,30 @@ import java.util.Locale;
 
 public class BagOfEntitiesEx {
 
-    public static String index = "/media/sonic/Windows/TREC/index/AP";
+    public static String index;
+    private static String topicPath;
+    private static String qrelsPath;
 
     public static void main(String[] args) throws Throwable {
+
+        for(int i = 0;i < args.length;i++) {
+            if ("-index".equals(args[i])) {
+                index = args[i + 1];
+                i++;
+            } else if ("-topic".equals(args[i])) {
+                topicPath = args[i + 1];
+                i++;
+            } else if ("-qrels".equals(args[i])) {
+                qrelsPath = args[i + 1];
+                i++;
+            }
+        }
+
+        if (args.length == 0) {
+            index = "/media/sonic/Windows/TREC/index/AP";
+            topicPath = "/media/sonic/Windows/TREC/WT2G/topics/topics.wt2g";
+            qrelsPath = "/media/sonic/Windows/TREC/qrels/qrels.AP.51-150";
+        }
 
         List<String> similarityList = new ArrayList<>();
 //        similarityList.add("bm25");
@@ -57,8 +78,10 @@ public class BagOfEntitiesEx {
 
         String description = "ENTLM-";
 
-        File topicsFile = new File("/media/sonic/Windows/TREC/WT2G/topics/topics.wt2g");
-        File qrelsFile = new File("/media/sonic/Windows/TREC/qrels/qrels.AP.51-150");
+            topicPath = "/media/sonic/Windows/TREC/WT2G/topics/topics.wt2g";
+            qrelsPath = "/media/sonic/Windows/TREC/qrels/qrels.AP.51-150";
+            File topicsFile = new File(topicPath);
+            File qrelsFile = new File(qrelsPath);
 //        String index = "/media/sonic/Windows/TREC/index/WT2G";
 //        File topicsFile = new File("/media/sonic/Windows/TREC/WT2G/topics/topics.wt2g");
 //        File qrelsFile = new File("/media/sonic/Windows/TREC/WT2G/Golden Standard/qrels.wt2g");
