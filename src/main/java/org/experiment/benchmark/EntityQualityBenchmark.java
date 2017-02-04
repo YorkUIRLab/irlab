@@ -198,7 +198,7 @@ public class EntityQualityBenchmark extends QualityBenchmark {
                 d = searcher.doc(td.scoreDocs[i].doc);
                 String docNO = d.getField(TrecDocIterator.DOCNO).stringValue().trim();
                 String contents = d.getField(TrecDocIterator.CONTENTS).stringValue();
-                contents = (contents.length() > 1500) ? contents.substring(0, 1500) : contents;
+                contents = (contents.length() > 2000) ? contents.substring(0, 2000) : contents;
 
                 try {
                     // if the document is not already cached
@@ -218,7 +218,7 @@ public class EntityQualityBenchmark extends QualityBenchmark {
                             //Write to file
                             documentAnnotation = docNO+ "\t" + documentAnnotation;
                             Utilities.writeToFile(collectionAnnFileName, documentAnnotation);
-                            logger.info(documentAnnotation);
+                            //logger.info(documentAnnotation);
                         }
                     } else {
                         docAnnotation = collectionAnnMap.get(docNO);
