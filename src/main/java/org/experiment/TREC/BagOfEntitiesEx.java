@@ -62,17 +62,17 @@ public class BagOfEntitiesEx {
 //        similarityList.add("LMJelinekMercerSimilarity");
         similarityList.add("lm");
         List<Double> tetaList = new ArrayList<>();
-//        tetaList.add(0.0);
-//        tetaList.add(0.1);
-//        tetaList.add(0.2);
-//        tetaList.add(0.3);
-//        tetaList.add(0.4);
-//        tetaList.add(0.5);
-//        tetaList.add(0.6);
-//        tetaList.add(0.7);
-//        tetaList.add(0.8);
-//        tetaList.add(0.9);
-        tetaList.add(1.0);
+        tetaList.add(1.0); // Baseline
+        tetaList.add(0.0);
+        tetaList.add(0.1);
+        tetaList.add(0.2);
+        tetaList.add(0.3);
+        tetaList.add(0.4);
+        tetaList.add(0.5);
+        tetaList.add(0.6);
+        tetaList.add(0.7);
+        tetaList.add(0.8);
+        tetaList.add(0.9);
 
         String description = "ENTLM-";
         File topicsFile = new File(topicPath);
