@@ -6,12 +6,12 @@ import org.apache.lucene.benchmark.quality.utils.DocNameExtractor;
 import org.apache.lucene.benchmark.quality.utils.SubmissionReport;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.*;
-import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.search.TopDocs;
+import org.apache.lucene.search.*;
+import org.apache.lucene.search.similarities.ClassicSimilarity;
+import org.apache.lucene.search.similarities.TFIDFSimilarity;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
+import org.apache.lucene.util.Bits;
 import org.apache.lucene.util.BytesRef;
 import org.deeplearning4j.models.word2vec.Word2Vec;
 import org.experiment.TREC.BagOfEntitiesEmbeddingEx;
@@ -59,7 +59,9 @@ public class EntityQualityBenchmark extends QualityBenchmark {
 
     double tetaVal;
 
-    public static String collectionAnnFileName = "dataset/APDOCAnnotation.bin";
+    public static String collectionAnnFileName = "dataset/WT10GDOCAnnotation.bin";
+//    public static String collectionAnnFileName = "dataset/APDOCAnnotation.bin";
+//    public static String collectionAnnFileName = "dataset/documentAnnotation.txt";
     public static String documentTitleAnnFileName = "dataset/documentTitleAnnotation.txt";
     private static HashMap<String, List<Annotation>> collectionAnnMap = new HashMap<>();
 
@@ -76,6 +78,8 @@ public class EntityQualityBenchmark extends QualityBenchmark {
     TagMeClient tagMeClient;
     ObjectMapper mapper = new ObjectMapper();
     TagResponse tagResponse;
+
+    IndexReader reader;
     /**
      * Number of Documents in index
      */
@@ -119,7 +123,7 @@ public class EntityQualityBenchmark extends QualityBenchmark {
         Directory directory;  //
         try {
             directory = FSDirectory.open(Paths.get(BagOfEntitiesEx.index));
-            IndexReader reader = DirectoryReader.open(directory);
+            reader = DirectoryReader.open(directory);
             termStats(reader);
         } catch (Exception e) {
             e.printStackTrace();
@@ -130,6 +134,10 @@ public class EntityQualityBenchmark extends QualityBenchmark {
         tetaVal = teta;
     }
 
+
+    public void superExecute (Judge judge, SubmissionReport submitRep, PrintWriter qualityLog) throws Exception {
+
+    }
 
     /**
      * Run the quality benchmark.
@@ -154,20 +162,13 @@ public class EntityQualityBenchmark extends QualityBenchmark {
             long t1 = System.currentTimeMillis();
             TopDocs td = searcher.search(q, maxResults);
 
-            td = updateScore(qq, td,  searcher);
+            td = updateScore(qq, td, searcher);
             // Sort scores
             Arrays.sort(td.scoreDocs, new ByWeightComparator());
+
             long searchTime = System.currentTimeMillis() - t1;
             logger.info("Search time: " + TimeUnit.MILLISECONDS.toSeconds(searchTime));
 
-
-            //most likely we either submit or judge, but check both
-            if (judge != null) {
-                stats[i] = analyzeQueryResults(qq, q, td, judge, qualityLog, searchTime);
-            }
-            if (submitRep != null) {
-                submitRep.report(qq, td, docNameField, searcher);
-            }
         }
         if (submitRep != null) {
             submitRep.flush();
@@ -175,7 +176,7 @@ public class EntityQualityBenchmark extends QualityBenchmark {
         return stats;
     }
 
-    public TopDocs updateScore(QualityQuery qq, TopDocs td,  IndexSearcher searcher) throws IOException {
+    public TopDocs updateScore(QualityQuery qq, TopDocs td, IndexSearcher searcher) throws IOException {
 
         TagResponse tagResponse;
         Document d;
@@ -186,7 +187,7 @@ public class EntityQualityBenchmark extends QualityBenchmark {
         String queryTitle = qq.getValue("title").toLowerCase().trim();
         List<Annotation> docAnnotation = new ArrayList<>();
 
-        logger.info("Start Query update, query: " + StanfordLemmatizer.getInstance().lemmatizeToString(queryTitle));
+        logger.info("Start Query update, queryID : " + qq.getQueryID() + " : " + StanfordLemmatizer.getInstance().lemmatizeToString(queryTitle) + " teta: "  + tetaVal);
 
         try {
             qqAnnotation = queryAnnMap.get(qq.getQueryID());
@@ -261,19 +262,22 @@ public class EntityQualityBenchmark extends QualityBenchmark {
                 }
 
                 // (MLE) Maximum likelihood estimate
-                double MLE = PCdocument / PCLength;
+//                double MLE = PCdocument / ( (PCLength == 0) ? 1 : PCLength );
+                double MLE = PCdocument / PCLength ;
+
                 //double symmetricSIM = symmetricSIMScore(queryTitle, d, word2Vec);
                 //double newScore = tetaVal * (symmetricSIM) + ((1 - tetaVal) * MLE);
 
                 double newScore = (tetaVal * (td.scoreDocs[i].score)) + ((1 - tetaVal) * MLE);
 
-                logger.info(" document " + i + " MLE: " + MLE + " score from: " + td.scoreDocs[i].score + " to: " + newScore);
+                logger.info(" document " + i + " MLE: " + MLE +  " score from: " + td.scoreDocs[i].score + " to: " + newScore);
                 td.scoreDocs[i].score = (float) newScore;
             }
         } catch (IOException e) {
             e.printStackTrace();
             logger.error(e.getMessage());
         }
+
         return td;
     }
     /**
@@ -394,15 +398,17 @@ public class EntityQualityBenchmark extends QualityBenchmark {
 
     public void termStats(IndexReader reader) throws Exception {
         Fields fields = MultiFields.getFields(reader);
-        Terms terms = fields.terms(BagOfEntitiesEmbeddingEx.field);
+        Terms terms = fields.terms(TrecDocIterator.CONTENTS);
         TermsEnum iterator = terms.iterator();
-        BytesRef byteRef = null;
+        BytesRef byteRef;
         String term;
+
         numberOfDocsIndex = reader.numDocs();
         while ((byteRef = iterator.next()) != null) {
             term = new String(byteRef.bytes, byteRef.offset, byteRef.length);
             term_total_freq_map.put(term, iterator.totalTermFreq());
             term_doc_freq_map.put(term, iterator.docFreq());
+
         }
     }
 
@@ -413,10 +419,58 @@ public class EntityQualityBenchmark extends QualityBenchmark {
         long docFreq = term_doc_freq_map.containsKey(term) ? term_doc_freq_map.get(term) : 0;
         return (float) (Math.log((numberOfDocsIndex + 1) / (double) (docFreq + 1)) + 1.0);
     }
+
+    public float tf(float freq) {
+        return (float)Math.sqrt(freq);
+    }
+
+    //TODO FIXMEEEEEE
+    public float tf_idf (String term) {
+        float tf = term_doc_freq_map.containsKey(term) ? term_doc_freq_map.get(term) : 0;
+        return tf * idf(term);
+    }
+
+
     public double getScore(double score) {
         return (Double.isNaN(score)) ? 0d : score;
     }
 
 
+    public void TFIDFscore(IndexReader reader,String field,String term) throws IOException
+    {
+//        float tf = 1;
+//        float idf = 0;
+//        float tfidf_score;
+//        float[] tfidf = null;
+//
+//        /** GET TERM FREQUENCY & IDF **/
+//        TFIDFSimilarity tfidfSIM = new ClassicSimilarity();
+//        Bits liveDocs = MultiFields.getLiveDocs(reader);
+//        TermsEnum termEnum = MultiFields.getTerms(reader, field).iterator(null);
+//        BytesRef bytesRef;
+//        while ((bytesRef = termEnum.next()) != null)
+//        {
+//            if(bytesRef.utf8ToString().trim() == term.trim())
+//            {
+//                if (termEnum.seekExact(bytesRef, true)) {
+//                    idf = tfidfSIM.idf(termEnum.docFreq(), reader.numDocs());
+//
+//                    DocsEnum docsEnum = termEnum.docs(liveDocs, null);
+//
+//                    termEnum.d
+//                    if (docsEnum != null)
+//                    {
+//                        int doc;
+//                        while((doc = docsEnum.nextDoc())!= DocIdSetIterator.NO_MORE_DOCS)
+//                        {
+//                            tf = tfidfSIM.tf(docsEnum.freq());
+//                            tfidf_score = tf*idf;
+//                            System.out.println(" -tfidf_score- " + tfidf_score);
+//                        }
+//                    }
+//                }
+//            }
+//        }
+    }
 
 }

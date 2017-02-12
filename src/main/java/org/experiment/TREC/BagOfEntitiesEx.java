@@ -52,18 +52,17 @@ public class BagOfEntitiesEx {
         }
 
         if (args.length == 0) {
-            index = "/media/sonic/Windows/TREC/index/AP";
-            topicPath = "/media/sonic/Windows/TREC/WT2G/topics/topics.wt2g";
-            qrelsPath = "/media/sonic/Windows/TREC/qrels/qrels.AP.51-150";
+            index = "/media/sonic/Windows/TREC/index/WT10G";
+            topicPath = "/media/sonic/Windows/TREC/topics/topics.wt10g";
+            qrelsPath = "/media/sonic/Windows/TREC/qrels/qrels.wt10g";
         }
 
         List<String> similarityList = new ArrayList<>();
-//        similarityList.add("bm25");
-//        similarityList.add("LMJelinekMercerSimilarity");
+        similarityList.add("bm25");
+        similarityList.add("LMJelinekMercerSimilarity");
         similarityList.add("lm");
         List<Double> tetaList = new ArrayList<>();
         tetaList.add(1.0); // Baseline
-        tetaList.add(0.0);
         tetaList.add(0.1);
         tetaList.add(0.2);
         tetaList.add(0.3);
@@ -73,8 +72,10 @@ public class BagOfEntitiesEx {
         tetaList.add(0.7);
         tetaList.add(0.8);
         tetaList.add(0.9);
+        tetaList.add(0.0);
 
-        String description = "ENTLM-";
+        String description = "WT10G"+ "-ENTLM-";
+//        String description = "WT10G"+ "-Baseline-";
         File topicsFile = new File(topicPath);
         File qrelsFile = new File(qrelsPath);
 
@@ -85,7 +86,7 @@ public class BagOfEntitiesEx {
         TrecTopicsReader qReader = new TrecTopicsReader();
         QualityQuery qqs[] = qReader.readQueries(new BufferedReader(new FileReader(topicsFile)));
         Judge judge = new TrecJudge(new BufferedReader(new FileReader(qrelsFile)));
-        QualityQueryParser qqParser = new TRECQQParser("title", TrecDocIterator.CONTENTS);
+        QualityQueryParser qqParser = new TRECQQParser(TrecDocIterator.TITLE, TrecDocIterator.CONTENTS);
 
         for (String simstring : similarityList) {
             Similarity simfn = Utilities.getSimilarity(simstring);
@@ -101,7 +102,7 @@ public class BagOfEntitiesEx {
 
                 EntityQualityBenchmark qrun = new EntityQualityBenchmark(qqs, qqParser, searcher, TrecDocIterator.DOCNO);
                 qrun.setTeta(teta);
-                SubmissionReport submitLog = new SubmissionReport(logger2, description+simstring+teta);
+                SubmissionReport submitLog = new SubmissionReport(logger2, simstring+teta);
 
                 QualityStats stats[] = qrun.execute(judge, submitLog, logger);
 
