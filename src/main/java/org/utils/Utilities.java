@@ -128,6 +128,7 @@ public class Utilities {
         // Load document annotations
         ObjectMapper mapper= new ObjectMapper();
         HashMap <String, List <Annotation> > docAnnMap = new HashMap<>();
+        int entityCount = 0;
         try (BufferedReader br = new BufferedReader(new FileReader(docAnnotationfileName))) {
             String line;
             while ((line = br.readLine()) != null) {
@@ -135,12 +136,14 @@ public class Utilities {
                 String json = line.split("\t")[1];
                 List<Annotation> docAnnList = mapper.readValue(json, new TypeReference<List<Annotation>>(){});
                 docAnnMap.put(docID, docAnnList);
+                entityCount += docAnnList.size();
                 //logger.error(docAnnList.toString());
             }
         } catch (Exception e) {
             logger.error("unable to load annotation catch");
             logger.error(e.getMessage());
         }
+        logger.info("Loaded docs: " + docAnnMap.size() + " total annotations: " + entityCount +  " annotations for " + docAnnotationfileName);
         return docAnnMap;
     }
 

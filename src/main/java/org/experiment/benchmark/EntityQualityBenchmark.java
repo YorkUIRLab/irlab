@@ -6,22 +6,19 @@ import org.apache.lucene.benchmark.quality.utils.DocNameExtractor;
 import org.apache.lucene.benchmark.quality.utils.SubmissionReport;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.*;
-import org.apache.lucene.search.*;
-import org.apache.lucene.search.similarities.ClassicSimilarity;
-import org.apache.lucene.search.similarities.TFIDFSimilarity;
+import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.ScoreDoc;
+import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
-import org.apache.lucene.util.Bits;
 import org.apache.lucene.util.BytesRef;
 import org.deeplearning4j.models.word2vec.Word2Vec;
-import org.experiment.TREC.BagOfEntitiesEmbeddingEx;
 import org.experiment.TREC.BagOfEntitiesEx;
 import org.experiment.TREC.TrecDocIterator;
 import org.experiment.analyzer.TRECAnalyzer;
 import org.experiment.preprocessing.StanfordLemmatizer;
 import org.experiment.similarities.ByWeightComparator;
-import org.experiment.word2vec.MyModelUtils;
-import org.experiment.word2vec.TRECWord2Vec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tagme4j.TagMeClient;
@@ -30,7 +27,6 @@ import org.tagme4j.model.Annotation;
 import org.tagme4j.response.TagResponse;
 import org.utils.Utilities;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Paths;
@@ -134,11 +130,6 @@ public class EntityQualityBenchmark extends QualityBenchmark {
         tetaVal = teta;
     }
 
-
-    public void superExecute (Judge judge, SubmissionReport submitRep, PrintWriter qualityLog) throws Exception {
-
-    }
-
     /**
      * Run the quality benchmark.
      *
@@ -156,18 +147,30 @@ public class EntityQualityBenchmark extends QualityBenchmark {
 
         for (int i = 0; i < nQueries; i++) {
             QualityQuery qq = qualityQueries[i];
+
+
             // generate query
             Query q = qqParser.parse(qq);
             // search with this query
             long t1 = System.currentTimeMillis();
             TopDocs td = searcher.search(q, maxResults);
 
-            td = updateScore(qq, td, searcher);
-            // Sort scores
-            Arrays.sort(td.scoreDocs, new ByWeightComparator());
+            if (tetaVal != 1.0) { // if not baseline
+                td = updateScore(qq, td, searcher);
+                // Sort scores
+                Arrays.sort(td.scoreDocs, new ByWeightComparator());
+            }
 
             long searchTime = System.currentTimeMillis() - t1;
             logger.info("Search time: " + TimeUnit.MILLISECONDS.toSeconds(searchTime));
+
+            //most likely we either submit or judge, but check both
+            if (judge != null) {
+                stats[i] = analyzeQueryResults(qq, q, td, judge, qualityLog, searchTime);
+            }
+            if (submitRep != null) {
+                submitRep.report(qq, td, docNameField, searcher);
+            }
 
         }
         if (submitRep != null) {
