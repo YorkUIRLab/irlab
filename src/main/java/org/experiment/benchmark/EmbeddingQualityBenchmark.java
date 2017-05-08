@@ -181,8 +181,6 @@ public class EmbeddingQualityBenchmark extends QualityBenchmark {
             double sim_S_T;
             // Go through top scored docs
             for (int i = 0; i < td.scoreDocs.length; i++) {
-                sim_T_S = 0d;
-                sim_S_T = 0d;
                 d = searcher.doc(td.scoreDocs[i].doc);
                 String contents = d.getField(TrecDocIterator.CONTENTS).stringValue();
                 contents = (contents.length() > 2000) ? contents.substring(0, 2000) : contents;

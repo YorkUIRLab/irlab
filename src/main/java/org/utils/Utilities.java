@@ -129,6 +129,7 @@ public class Utilities {
         ObjectMapper mapper= new ObjectMapper();
         HashMap <String, List <Annotation> > docAnnMap = new HashMap<>();
         int entityCount = 0;
+        List<Annotation> uniqueAnnList = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new FileReader(docAnnotationfileName))) {
             String line;
             while ((line = br.readLine()) != null) {
@@ -137,13 +138,20 @@ public class Utilities {
                 List<Annotation> docAnnList = mapper.readValue(json, new TypeReference<List<Annotation>>(){});
                 docAnnMap.put(docID, docAnnList);
                 entityCount += docAnnList.size();
+                //docAnnList.stream().filter(docAnn -> !uniqueAnnList.contains(docAnn)).forEach(uniqueAnnList::add);
                 //logger.error(docAnnList.toString());
             }
         } catch (Exception e) {
             logger.error("unable to load annotation catch");
             logger.error(e.getMessage());
         }
-        logger.info("Loaded docs: " + docAnnMap.size() + " total annotations: " + entityCount +  " annotations for " + docAnnotationfileName);
+        double aveAnnPerDoc = entityCount / docAnnMap.size();
+        logger.info(
+                "\n annotations for " + docAnnotationfileName +
+                "\n Number of Loaded Docs: " + docAnnMap.size() +
+                "\n Total number of annotations: " + entityCount +
+                "\n Total Unique annotations: " + uniqueAnnList.size() +
+                "\n average number of annotations in collection: " + aveAnnPerDoc);
         return docAnnMap;
     }
 
@@ -170,4 +178,27 @@ public class Utilities {
         return docAnnMap;
 
     }
+
+    public static double cosineSimilarity(int[] vectorA, int[] vectorB) {
+        assert (vectorA.length == vectorB.length);
+        double dotProduct = 0.0;
+        double normA = 0.0;
+        double normB = 0.0;
+        for (int i = 0; i < vectorA.length; i++) {
+            dotProduct += vectorA[i] * vectorB[i];
+            normA += Math.pow(vectorA[i], 2);
+            normB += Math.pow(vectorB[i], 2);
+        }
+        return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
+    }
+
+    public static void main(String[] args) throws Exception {
+//        String  collectionAnn = "dataset/WT2GDOCAnnotation.bin";
+//        String  collectionAnn = "dataset/WT10GDOCAnnotation.bin";
+        String  collectionAnn = "dataset/APDOCAnnotation.bin";
+        populateCollectionAnnotationMap (collectionAnn);
+    }
+
+
+
 }

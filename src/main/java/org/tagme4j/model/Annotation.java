@@ -107,4 +107,19 @@ public class Annotation implements Serializable {
                 ", dbpedia_categories=" + dbpedia_categories +
                 '}';
     }
+
+    public boolean equalTo(Annotation compareAnn) {
+        //ascending order
+        return this.id == compareAnn.getId();
+
+    }
+
+    @Override
+    public boolean equals(Object v) {
+        if (v == null) return false;
+        if (v == this) return true; //if both pointing towards same object on heap
+        Annotation a = (Annotation) v;
+        return this.id == a.id;
+    }
+
 }
